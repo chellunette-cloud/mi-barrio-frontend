@@ -33,6 +33,10 @@ test('HU-01 y HU-02 se ven en escritorio y móvil', async ({ page }) => {
   await expect(page.getByText('3.807')).toBeVisible();
   await expect(page.getByRole('region', { name: /Mapa interactivo/ })).toBeVisible();
   await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(1, { timeout: 20000 });
+  const sinDesbordamientoHorizontal = await page.evaluate(
+    () => document.documentElement.scrollWidth <= document.documentElement.clientWidth
+  );
+  expect(sinDesbordamientoHorizontal).toBe(true);
   await page.screenshot({ path: 'test-results/ficha-mapa-mobile.png', fullPage: true });
 });
 
