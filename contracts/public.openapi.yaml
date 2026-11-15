@@ -1,0 +1,242 @@
+openapi: 3.0.3
+info:
+  title: Mi Barrio · API pública
+  version: 0.1.0
+  description: |
+    Contrato canónico de la API pública de Mi Barrio para HU-01 y HU-02.
+    mi-barrio-frontend consume este contrato mediante tipos generados y sincronizados.
+    La API no expone el token de servicio ni detalles internos del backend.
+servers:
+  - url: http://127.0.0.1:3000
+    description: Desarrollo local
+  - url: https://api.mibarrio.example
+    description: Producción (sustituir por el dominio aprobado)
+paths:
+  /api/v1/health:
+    get:
+      operationId: health
+      responses:
+        '200':
+          description: Servicio disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service]
+                properties:
+                  status: { type: string, enum: [ok] }
+                  service: { type: string, example: mi-barrio-api }
+  /api/v1/barrio:
+    get:
+      operationId: getBarrio
+      summary: Ficha general de Ciudad Granada (HU-01)
+      responses:
+        '200':
+          description: Ficha territorial y fuentes
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Barrio'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /api/v1/barrio/geometria:
+    get:
+      operationId: getBarrioGeometria
+      summary: Polígono oficial de Ciudad Granada (HU-02)
+      responses:
+        '200':
+          description: Polígono oficial en WGS84
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BarrioGeometria'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+components:
+  responses:
+    NoEncontrado:
+      description: Dato no disponible
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    DependenciaNoDisponible:
+      description: El backend interno no respondió correctamente
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TiempoAgotado:
+      description: El backend interno agotó el tiempo de espera
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ErrorInterno:
+      description: Error controlado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Fuente:
+      type: object
+      required: [codigo, entidad, url, fechaConsulta, licencia, campos]
+      properties:
+        codigo: { type: string, example: F-01 }
+        entidad: { type: string, example: SDP/UAECD }
+        url: { type: string, format: uri }
+        fechaConsulta: { type: string, format: date, example: '2026-11-15' }
+        licencia: { type: string, example: CC BY 4.0 }
+        campos:
+          type: array
+          items: { type: string }
+    Barrio:
+      type: object
+      required:
+        - slug
+        - nombre
+        - nombreMostrar
+        - codigoId
+        - localidad
+        - upz
+        - upl
+        - area
+        - lotes
+        - poblacion
+        - densidad
+        - estratoPredominante
+        - manzanasEstrato2
+        - centroide
+        - limites
+        - actualizadoEn
+        - fuentes
+      properties:
+        slug: { type: string, example: ciudad-granada }
+        nombre: { type: string, example: URBANIZACION CIUDAD GRANADA }
+        nombreMostrar: { type: string, example: Ciudad Granada }
+        codigoId: { type: string, nullable: true, example: LEG00645 }
+        localidad:
+          type: object
+          required: [codigo, nombre]
+          properties:
+            codigo: { type: string, example: '08' }
+            nombre: { type: string, example: Kennedy }
+        upz:
+          type: object
+          required: [codigo, nombre]
+          properties:
+            codigo: { type: string, example: '82' }
+            nombre: { type: string, example: Patio Bonito }
+        upl: { type: string, example: UPL14 }
+        area:
+          type: object
+          required: [hectareas, metrosCuadrados]
+          properties:
+            hectareas: { type: number, example: 9.1 }
+            metrosCuadrados: { type: number, example: 94551.13 }
+        lotes: { type: integer, example: 705 }
+        poblacion:
+          type: object
+          required: [valor, tipo, etiqueta]
+          properties:
+            valor: { type: integer, example: 3807 }
+            tipo: { type: string, enum: [estimacion] }
+            etiqueta: { type: string, example: Estimación del registro del barrio }
+        densidad: { type: number, nullable: true, example: 77.4725 }
+        estratoPredominante: { type: integer, nullable: true, example: 2 }
+        manzanasEstrato2: { type: integer, example: 34 }
+        centroide:
+          $ref: '#/components/schemas/Punto'
+        limites:
+          $ref: '#/components/schemas/Limites'
+        actualizadoEn: { type: string, format: date-time }
+        fuentes:
+          type: array
+          items: { $ref: '#/components/schemas/Fuente' }
+    BarrioGeometria:
+      type: object
+      required:
+        - slug
+        - nombre
+        - codigoId
+        - geometria
+        - centroide
+        - limites
+        - area
+        - vertices
+        - srid
+        - actualizadoEn
+        - fuente
+      properties:
+        slug: { type: string, example: ciudad-granada }
+        nombre: { type: string, example: URBANIZACION CIUDAD GRANADA }
+        codigoId: { type: string, nullable: true, example: LEG00645 }
+        geometria:
+          $ref: '#/components/schemas/Polygon'
+        centroide:
+          $ref: '#/components/schemas/Punto'
+        limites:
+          $ref: '#/components/schemas/Limites'
+        area:
+          type: object
+          required: [hectareas, metrosCuadrados]
+          properties:
+            hectareas: { type: number, example: 9.1 }
+            metrosCuadrados: { type: number, example: 94551.13 }
+        vertices: { type: integer, example: 58 }
+        srid: { type: integer, enum: [4326] }
+        actualizadoEn: { type: string, format: date-time }
+        fuente:
+          $ref: '#/components/schemas/Fuente'
+    Polygon:
+      type: object
+      required: [type, coordinates]
+      properties:
+        type: { type: string, enum: [Polygon] }
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items: { type: number }
+    Punto:
+      type: object
+      required: [lat, lon]
+      properties:
+        lat: { type: number, example: 4.641833 }
+        lon: { type: number, example: -74.171758 }
+    Limites:
+      type: object
+      required: [norte, sur, este, oeste]
+      properties:
+        norte: { type: number }
+        sur: { type: number }
+        este: { type: number }
+        oeste: { type: number }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code: { type: string, example: BARRIO_NO_ENCONTRADO }
+            message: { type: string }
+            requestId: { type: string, nullable: true }
