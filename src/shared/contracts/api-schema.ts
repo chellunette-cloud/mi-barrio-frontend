@@ -156,6 +156,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Inicio de sesión administrativa (HU-13) */
+        post: operations["loginAdmin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renovación de sesión (HU-13) */
+        post: operations["refreshAdmin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -387,6 +421,24 @@ export interface components {
                 escala: string;
             }[];
         };
+        LoginRequest: {
+            username: string;
+            password: string;
+        };
+        AdminSession: {
+            accessToken: string;
+            refreshToken: string;
+            /** @example 900 */
+            expiresIn: number;
+        };
+        RefreshRequest: {
+            refreshToken: string;
+        };
+        RefreshResponse: {
+            accessToken: string;
+            /** @example 900 */
+            expiresIn: number;
+        };
         Error: {
             error: {
                 /** @example BARRIO_NO_ENCONTRADO */
@@ -399,6 +451,15 @@ export interface components {
     responses: {
         /** @description Dato no disponible */
         NoEncontrado: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Token ausente o inválido */
+        NoAutorizado: {
             headers: {
                 [name: string]: unknown;
             };
@@ -677,6 +738,60 @@ export interface operations {
             500: components["responses"]["ErrorInterno"];
             502: components["responses"]["DependenciaNoDisponible"];
             504: components["responses"]["TiempoAgotado"];
+        };
+    };
+    loginAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Sesión administrativa */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSession"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    refreshAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshRequest"];
+            };
+        };
+        responses: {
+            /** @description Token renovado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshResponse"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            500: components["responses"]["ErrorInterno"];
         };
     };
 }

@@ -219,10 +219,61 @@ paths:
           $ref: '#/components/responses/TiempoAgotado'
         '500':
           $ref: '#/components/responses/ErrorInterno'
+  /api/v1/auth/login:
+    post:
+      operationId: loginAdmin
+      summary: Inicio de sesión administrativa (HU-13)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Sesión administrativa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSession'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutorizado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /api/v1/auth/refresh:
+    post:
+      operationId: refreshAdmin
+      summary: Renovación de sesión (HU-13)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token renovado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutorizado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
 components:
   responses:
     NoEncontrado:
       description: Dato no disponible
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NoAutorizado:
+      description: Token ausente o inválido
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -497,6 +548,30 @@ components:
               nombre: { type: string }
               fuente: { type: string }
               escala: { type: string }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+    AdminSession:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        expiresIn: { type: integer, example: 900 }
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+    RefreshResponse:
+      type: object
+      required: [accessToken, expiresIn]
+      properties:
+        accessToken: { type: string }
+        expiresIn: { type: integer, example: 900 }
     Error:
       type: object
       required: [error]
