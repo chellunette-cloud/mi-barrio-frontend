@@ -122,6 +122,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/estadisticas/demografia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Demografía del barrio y la UPZ (HU-10) */
+        get: operations["getDemografia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/estadisticas/seguridad": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Seguridad y entorno (HU-11) */
+        get: operations["getSeguridad"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -285,6 +319,73 @@ export interface components {
             dentroBarrio: boolean;
             /** @example F-16 */
             fuentePrincipal: string;
+        };
+        Demografia: {
+            barrio: {
+                /** @enum {string} */
+                nivel: "barrio";
+                nombre: string;
+                poblacion: {
+                    /** @example 3807 */
+                    valor: number;
+                    /** @example estimacion */
+                    tipo: string;
+                    etiqueta: string;
+                };
+                /** @example 2 */
+                estrato: number;
+                /** @example 34 */
+                manzanasEstrato2: number;
+                /** @example 9.1 */
+                areaHectareas: number;
+                /** @example 77.4725 */
+                densidad: number;
+                /** @example F-01 */
+                fuente: string;
+            };
+            upz: {
+                /** @enum {string} */
+                nivel: "upz";
+                /** @example 82 */
+                codigo: string;
+                /** @example Patio Bonito */
+                nombre: string;
+                poblacion: {
+                    /** @example 133130 */
+                    valor: number;
+                    /** @example 2025 */
+                    anio: number;
+                    /** @example 66175 */
+                    hombres: number;
+                    /** @example 66955 */
+                    mujeres: number;
+                };
+                /** @example F-03 */
+                fuente: string;
+            };
+        };
+        Seguridad: {
+            cuadrante: {
+                /** @example CAI Bellavista */
+                nombre: string;
+                codigo: string;
+                telefono: string;
+                /** @example 82 */
+                upz: string;
+                /** @example F-08 */
+                fuente: string;
+            };
+            indicadores: {
+                nombre: string;
+                nivel: string;
+                periodo: string;
+                fuente: string;
+            }[];
+            capas: {
+                nombre: string;
+                fuente: string;
+                escala: string;
+            }[];
         };
         Error: {
             error: {
@@ -523,6 +624,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Via"][];
+                };
+            };
+            500: components["responses"]["ErrorInterno"];
+            502: components["responses"]["DependenciaNoDisponible"];
+            504: components["responses"]["TiempoAgotado"];
+        };
+    };
+    getDemografia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Dos paneles separados */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Demografia"];
+                };
+            };
+            500: components["responses"]["ErrorInterno"];
+            502: components["responses"]["DependenciaNoDisponible"];
+            504: components["responses"]["TiempoAgotado"];
+        };
+    };
+    getSeguridad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cuadrante, indicadores y capas */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Seguridad"];
                 };
             };
             500: components["responses"]["ErrorInterno"];

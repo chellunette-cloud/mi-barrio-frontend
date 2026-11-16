@@ -179,6 +179,46 @@ paths:
           $ref: '#/components/responses/TiempoAgotado'
         '500':
           $ref: '#/components/responses/ErrorInterno'
+  /api/v1/estadisticas/demografia:
+    get:
+      operationId: getDemografia
+      summary: Demografía del barrio y la UPZ (HU-10)
+      responses:
+        '200':
+          description: Dos paneles separados
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Demografia'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /api/v1/estadisticas/seguridad:
+    get:
+      operationId: getSeguridad
+      summary: Seguridad y entorno (HU-11)
+      responses:
+        '200':
+          description: Cuadrante, indicadores y capas
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seguridad'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
 components:
   responses:
     NoEncontrado:
@@ -387,6 +427,76 @@ components:
             items: { type: number }
         dentroBarrio: { type: boolean, example: false }
         fuentePrincipal: { type: string, example: F-16 }
+    Demografia:
+      type: object
+      required: [barrio, upz]
+      properties:
+        barrio:
+          type: object
+          required: [nivel, nombre, poblacion, estrato, manzanasEstrato2, areaHectareas, densidad, fuente]
+          properties:
+            nivel: { type: string, enum: [barrio] }
+            nombre: { type: string }
+            poblacion:
+              type: object
+              required: [valor, tipo, etiqueta]
+              properties:
+                valor: { type: integer, example: 3807 }
+                tipo: { type: string, example: estimacion }
+                etiqueta: { type: string }
+            estrato: { type: integer, example: 2 }
+            manzanasEstrato2: { type: integer, example: 34 }
+            areaHectareas: { type: number, example: 9.1 }
+            densidad: { type: number, example: 77.4725 }
+            fuente: { type: string, example: F-01 }
+        upz:
+          type: object
+          required: [nivel, codigo, nombre, poblacion, fuente]
+          properties:
+            nivel: { type: string, enum: [upz] }
+            codigo: { type: string, example: '82' }
+            nombre: { type: string, example: Patio Bonito }
+            poblacion:
+              type: object
+              required: [valor, anio, hombres, mujeres]
+              properties:
+                valor: { type: integer, example: 133130 }
+                anio: { type: integer, example: 2025 }
+                hombres: { type: integer, example: 66175 }
+                mujeres: { type: integer, example: 66955 }
+            fuente: { type: string, example: F-03 }
+    Seguridad:
+      type: object
+      required: [cuadrante, indicadores, capas]
+      properties:
+        cuadrante:
+          type: object
+          required: [nombre, codigo, telefono, upz, fuente]
+          properties:
+            nombre: { type: string, example: CAI Bellavista }
+            codigo: { type: string }
+            telefono: { type: string }
+            upz: { type: string, example: '82' }
+            fuente: { type: string, example: F-08 }
+        indicadores:
+          type: array
+          items:
+            type: object
+            required: [nombre, nivel, periodo, fuente]
+            properties:
+              nombre: { type: string }
+              nivel: { type: string }
+              periodo: { type: string }
+              fuente: { type: string }
+        capas:
+          type: array
+          items:
+            type: object
+            required: [nombre, fuente, escala]
+            properties:
+              nombre: { type: string }
+              fuente: { type: string }
+              escala: { type: string }
     Error:
       type: object
       required: [error]
