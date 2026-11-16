@@ -153,6 +153,32 @@ paths:
           $ref: '#/components/responses/TiempoAgotado'
         '500':
           $ref: '#/components/responses/ErrorInterno'
+  /api/v1/vias:
+    get:
+      operationId: listVias
+      summary: Tramos viales (HU-08)
+      parameters:
+        - name: highway
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Tramos viales
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Via'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
 components:
   responses:
     NoEncontrado:
@@ -347,6 +373,20 @@ components:
         fuentes:
           type: array
           items: { type: string, example: F-04 }
+    Via:
+      type: object
+      required: [id, highway, coordenadas, dentroBarrio, fuentePrincipal]
+      properties:
+        id: { type: integer, example: 1 }
+        nombre: { type: string, nullable: true, example: Calle 38 Sur }
+        highway: { type: string, example: residential }
+        coordenadas:
+          type: array
+          items:
+            type: array
+            items: { type: number }
+        dentroBarrio: { type: boolean, example: false }
+        fuentePrincipal: { type: string, example: F-16 }
     Error:
       type: object
       required: [error]
