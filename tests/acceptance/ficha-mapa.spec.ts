@@ -12,9 +12,9 @@ test('HU-01 y HU-02 se ven en escritorio y móvil', async ({ page }) => {
   await expect(atribucion).toContainText('SDP/UAECD – IDECA');
   await expect(atribucion).toContainText('CC BY 4.0');
   await expect(page.getByRole('region', { name: /Mapa interactivo/ })).toBeVisible();
-  await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(1, { timeout: 20000 });
+  await expect(page.getByRole('region', { name: /Mapa interactivo/ }).locator('.leaflet-overlay-pane path')).toHaveCount(1, { timeout: 20000 });
   const mapBox = await page.getByRole('region', { name: /Mapa interactivo/ }).boundingBox();
-  const pathBox = await page.locator('.leaflet-overlay-pane path').boundingBox();
+  const pathBox = await page.getByRole('region', { name: /Mapa interactivo/ }).locator('.leaflet-overlay-pane path').boundingBox();
   expect(mapBox && pathBox).toBeTruthy();
   if (mapBox && pathBox) {
     expect(pathBox.x).toBeGreaterThanOrEqual(mapBox.x);
@@ -22,9 +22,9 @@ test('HU-01 y HU-02 se ven en escritorio y móvil', async ({ page }) => {
     expect(pathBox.x + pathBox.width).toBeLessThanOrEqual(mapBox.x + mapBox.width);
     expect(pathBox.y + pathBox.height).toBeLessThanOrEqual(mapBox.y + mapBox.height);
   }
-  await page.locator('.leaflet-control-zoom-in').click();
-  await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(1);
-  await page.locator('.leaflet-overlay-pane path').click({ force: true });
+  await page.getByRole('region', { name: /Mapa interactivo/ }).getByRole('button', { name: 'Zoom in' }).click();
+  await expect(page.getByRole('region', { name: /Mapa interactivo/ }).locator('.leaflet-overlay-pane path')).toHaveCount(1);
+  await page.getByRole('region', { name: /Mapa interactivo/ }).locator('.leaflet-overlay-pane path').click({ force: true });
   await expect(page.locator('.leaflet-popup-content')).toContainText('URBANIZACION CIUDAD GRANADA');
   await page.screenshot({ path: 'test-results/ficha-mapa-desktop.png', fullPage: true });
 
@@ -32,7 +32,7 @@ test('HU-01 y HU-02 se ven en escritorio y móvil', async ({ page }) => {
   await page.reload();
   await expect(page.getByText('3.807')).toBeVisible();
   await expect(page.getByRole('region', { name: /Mapa interactivo/ })).toBeVisible();
-  await expect(page.locator('.leaflet-overlay-pane path')).toHaveCount(1, { timeout: 20000 });
+  await expect(page.getByRole('region', { name: /Mapa interactivo/ }).locator('.leaflet-overlay-pane path')).toHaveCount(1, { timeout: 20000 });
   const sinDesbordamientoHorizontal = await page.evaluate(
     () => document.documentElement.scrollWidth <= document.documentElement.clientWidth
   );
