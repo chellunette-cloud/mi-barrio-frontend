@@ -54,6 +54,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/categorias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Categorías de lugares (HU-03) */
+        get: operations["listCategorias"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lugares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lugares publicados (HU-03 a HU-06) */
+        get: operations["listLugares"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lugares/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle de un lugar (HU-03) */
+        get: operations["getLugar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -166,6 +217,45 @@ export interface components {
             este: number;
             oeste: number;
         };
+        Categoria: {
+            /** @example 1 */
+            id: number;
+            /** @example educacion */
+            codigo: string;
+            /** @example Instituciones educativas */
+            nombre: string;
+            descripcion: string;
+            /** @example true */
+            activa: boolean;
+        };
+        Lugar: {
+            /** @example 1 */
+            id: number;
+            /** @example 1 */
+            categoriaId: number;
+            /** @example educacion */
+            categoriaCodigo: string;
+            /** @example COLEGIO ALEJANDRO MAGNO */
+            nombre: string;
+            descripcion?: string | null;
+            direccion?: string | null;
+            sector?: string | null;
+            /** @example colegio */
+            tipo?: string | null;
+            /** @example 4.6408567 */
+            lat: number;
+            /** @example -74.1702362 */
+            lon: number;
+            /** @example true */
+            dentroBarrio: boolean;
+            /** @example 120.5 */
+            distanciaM?: number | null;
+            /** @example true */
+            publicado: boolean;
+            /** @example F-04 */
+            fuentePrincipal: string;
+            fuentes: string[];
+        };
         Error: {
             error: {
                 /** @example BARRIO_NO_ENCONTRADO */
@@ -205,6 +295,15 @@ export interface components {
         };
         /** @description Error controlado */
         ErrorInterno: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Parámetros inválidos */
+        SolicitudInvalida: {
             headers: {
                 [name: string]: unknown;
             };
@@ -287,6 +386,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BarrioGeometria"];
+                };
+            };
+            404: components["responses"]["NoEncontrado"];
+            500: components["responses"]["ErrorInterno"];
+            502: components["responses"]["DependenciaNoDisponible"];
+            504: components["responses"]["TiempoAgotado"];
+        };
+    };
+    listCategorias: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Categorías publicadas */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Categoria"][];
+                };
+            };
+            500: components["responses"]["ErrorInterno"];
+            502: components["responses"]["DependenciaNoDisponible"];
+            504: components["responses"]["TiempoAgotado"];
+        };
+    };
+    listLugares: {
+        parameters: {
+            query?: {
+                categoria?: string;
+                q?: string;
+                limite?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lugares publicados */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lugar"][];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            500: components["responses"]["ErrorInterno"];
+            502: components["responses"]["DependenciaNoDisponible"];
+            504: components["responses"]["TiempoAgotado"];
+        };
+    };
+    getLugar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalle del lugar */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lugar"];
                 };
             };
             404: components["responses"]["NoEncontrado"];

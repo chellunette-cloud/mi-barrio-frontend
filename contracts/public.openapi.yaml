@@ -70,6 +70,89 @@ paths:
           $ref: '#/components/responses/TiempoAgotado'
         '500':
           $ref: '#/components/responses/ErrorInterno'
+  /api/v1/categorias:
+    get:
+      operationId: listCategorias
+      summary: Categorías de lugares (HU-03)
+      responses:
+        '200':
+          description: Categorías publicadas
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /api/v1/lugares:
+    get:
+      operationId: listLugares
+      summary: Lugares publicados (HU-03 a HU-06)
+      parameters:
+        - name: categoria
+          in: query
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: limite
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 1000 }
+      responses:
+        '200':
+          description: Lugares publicados
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lugar'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+  /api/v1/lugares/{id}:
+    get:
+      operationId: getLugar
+      summary: Detalle de un lugar (HU-03)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Detalle del lugar
+          headers:
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lugar'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '502':
+          $ref: '#/components/responses/DependenciaNoDisponible'
+        '504':
+          $ref: '#/components/responses/TiempoAgotado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
 components:
   responses:
     NoEncontrado:
@@ -89,6 +172,11 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
     ErrorInterno:
       description: Error controlado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    SolicitudInvalida:
+      description: Parámetros inválidos
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -229,6 +317,36 @@ components:
         sur: { type: number }
         este: { type: number }
         oeste: { type: number }
+    Categoria:
+      type: object
+      required: [id, codigo, nombre, descripcion, activa]
+      properties:
+        id: { type: integer, example: 1 }
+        codigo: { type: string, example: educacion }
+        nombre: { type: string, example: Instituciones educativas }
+        descripcion: { type: string }
+        activa: { type: boolean, example: true }
+    Lugar:
+      type: object
+      required: [id, categoriaId, categoriaCodigo, nombre, lat, lon, dentroBarrio, publicado, fuentePrincipal, fuentes]
+      properties:
+        id: { type: integer, example: 1 }
+        categoriaId: { type: integer, example: 1 }
+        categoriaCodigo: { type: string, example: educacion }
+        nombre: { type: string, example: COLEGIO ALEJANDRO MAGNO }
+        descripcion: { type: string, nullable: true }
+        direccion: { type: string, nullable: true }
+        sector: { type: string, nullable: true }
+        tipo: { type: string, nullable: true, example: colegio }
+        lat: { type: number, example: 4.6408567 }
+        lon: { type: number, example: -74.1702362 }
+        dentroBarrio: { type: boolean, example: true }
+        distanciaM: { type: number, nullable: true, example: 120.5 }
+        publicado: { type: boolean, example: true }
+        fuentePrincipal: { type: string, example: F-04 }
+        fuentes:
+          type: array
+          items: { type: string, example: F-04 }
     Error:
       type: object
       required: [error]
