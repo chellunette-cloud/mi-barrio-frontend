@@ -18,5 +18,10 @@ export const adminApi = {
   list: (token: string) => request('/api/v1/admin/lugares', { headers: { Authorization: `Bearer ${token}` } }),
   create: (token: string, body: unknown) => request('/api/v1/admin/lugares', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }),
   update: (token: string, id: number, body: unknown) => request(`/api/v1/admin/lugares/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }),
-  remove: (token: string, id: number) => request(`/api/v1/admin/lugares/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+  remove: (token: string, id: number) => request(`/api/v1/admin/lugares/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
+  listCategorias: (token: string) => request('/api/v1/admin/categorias', { headers: { Authorization: `Bearer ${token}` } }),
+  createCategoria: (token: string, body: unknown) => request('/api/v1/admin/categorias', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }),
+  updateCategoria: (token: string, id: number, body: unknown) => request(`/api/v1/admin/categorias/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }),
+  removeCategoria: (token: string, id: number, reasignarA?: number) => request(`/api/v1/admin/categorias/${id}${reasignarA ? `?reasignarA=${reasignarA}` : ''}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
+  audit: (token: string) => request('/api/v1/admin/auditoria', { headers: { Authorization: `Bearer ${token}` } })
 };

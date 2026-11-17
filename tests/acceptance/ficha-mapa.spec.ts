@@ -4,7 +4,7 @@ test('HU-01 y HU-02 se ven en escritorio y móvil', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: 'Ciudad Granada' })).toBeVisible();
   await expect(page.getByText('URBANIZACION CIUDAD GRANADA')).toBeVisible();
-  await expect(page.getByText('3.807')).toBeVisible();
+  await expect(page.getByText('3.807').first()).toBeVisible();
   await expect(page.getByText(/9,1 ha/)).toBeVisible();
   await expect(page.getByText('UPL14')).toBeVisible();
   await expect(page.getByText('Información no disponible', { exact: true })).toBeVisible();
@@ -30,7 +30,7 @@ test('HU-01 y HU-02 se ven en escritorio y móvil', async ({ page }) => {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
-  await expect(page.getByText('3.807')).toBeVisible();
+  await expect(page.getByText('3.807').first()).toBeVisible();
   await expect(page.getByRole('region', { name: /Mapa interactivo/ })).toBeVisible();
   await expect(page.getByRole('region', { name: /Mapa interactivo/ }).locator('.leaflet-overlay-pane path')).toHaveCount(1, { timeout: 20000 });
   const sinDesbordamientoHorizontal = await page.evaluate(

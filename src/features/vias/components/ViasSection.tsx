@@ -13,7 +13,7 @@ export function ViasSection() {
     <section className="mt-8" aria-labelledby="vias-title">
       <h2 id="vias-title" className="text-2xl font-bold text-slate-900">Vías y accesos</h2>
       <p className="mt-1 text-sm text-slate-600">Malla vial disponible en OpenStreetMap. Cobertura parcial; no se presentan rutas calculadas.</p>
-      <p className="mt-2 text-xs text-slate-500">{data.length} tramos cargados: {residenciales} residenciales y {terciarias} terciarios.</p>
+      <p className="mt-2 text-xs text-slate-500">{data.length} tramos cargados: {residenciales} residenciales y {terciarias} terciarios. Jerarquía visible; los tramos terciarios se resaltan en azul como accesos al entorno.</p>
       {state.status === 'loading' ? <EstadoCarga label="Cargando vías…" /> : null}
       {state.status === 'error' ? <ErrorPanel message={state.message ?? 'Error'} onRetry={() => window.location.reload()} /> : null}
       {state.status === 'success' ? (

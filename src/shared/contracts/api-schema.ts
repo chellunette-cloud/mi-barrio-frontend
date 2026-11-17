@@ -190,6 +190,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/lugares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lugares administrables (HU-13) */
+        get: operations["listAdminLugares"];
+        put?: never;
+        /** Crear lugar (HU-13) */
+        post: operations["createAdminLugar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/lugares/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Editar o despublicar un lugar (HU-13) */
+        put: operations["updateAdminLugar"];
+        post?: never;
+        /** Eliminar lugar (HU-13) */
+        delete: operations["deleteAdminLugar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/categorias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Categorías administrables (HU-13) */
+        get: operations["listAdminCategorias"];
+        put?: never;
+        /** Crear categoría (HU-13) */
+        post: operations["createAdminCategoria"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/categorias/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Editar categoría (HU-13) */
+        put: operations["updateAdminCategoria"];
+        post?: never;
+        /** Eliminar categoría con reasignación protegida (HU-13, RN-08) */
+        delete: operations["deleteAdminCategoria"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/auditoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Auditoría administrativa (HU-13) */
+        get: operations["listAuditoria"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -327,6 +416,11 @@ export interface components {
             sector?: string | null;
             /** @example colegio */
             tipo?: string | null;
+            /**
+             * @description Código externo verificable; en paraderos corresponde al código SITP
+             * @example 029A08
+             */
+            codigo: string | null;
             /** @example 4.6408567 */
             lat: number;
             /** @example -74.1702362 */
@@ -394,6 +488,16 @@ export interface components {
                     /** @example 66955 */
                     mujeres: number;
                 };
+                quinquenios: {
+                    /** @example 0-4 */
+                    edad: string;
+                    /** @example 5006 */
+                    hombres: number;
+                    /** @example 4900 */
+                    mujeres: number;
+                    /** @example 9906 */
+                    total: number;
+                }[];
                 /** @example F-03 */
                 fuente: string;
             };
@@ -438,6 +542,35 @@ export interface components {
             accessToken: string;
             /** @example 900 */
             expiresIn: number;
+        };
+        CategoriaInput: {
+            codigo: string;
+            nombre: string;
+            descripcion: string;
+            /** @default true */
+            activa: boolean;
+        };
+        LugarInput: {
+            categoriaId: number;
+            nombre: string;
+            descripcion?: string | null;
+            direccion?: string | null;
+            sector?: string | null;
+            tipo?: string | null;
+            lat: number;
+            lon: number;
+            publicado?: boolean;
+        };
+        Auditoria: {
+            id: number;
+            usuario: string;
+            accion: string;
+            entidad: string;
+            entidadId: number | null;
+            antes?: Record<string, never> | null;
+            despues?: Record<string, never> | null;
+            /** Format: date-time */
+            fecha: string;
         };
         Error: {
             error: {
@@ -496,6 +629,15 @@ export interface components {
         };
         /** @description Parámetros inválidos */
         SolicitudInvalida: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description La operación entra en conflicto con datos existentes */
+        Conflicto: {
             headers: {
                 [name: string]: unknown;
             };
@@ -790,6 +932,239 @@ export interface operations {
                 };
             };
             400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    listAdminLugares: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lugares, incluidos los no publicados */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lugar"][];
+                };
+            };
+            401: components["responses"]["NoAutorizado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    createAdminLugar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LugarInput"];
+            };
+        };
+        responses: {
+            /** @description Lugar creado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lugar"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    updateAdminLugar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LugarInput"];
+            };
+        };
+        responses: {
+            /** @description Lugar actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lugar"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            404: components["responses"]["NoEncontrado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    deleteAdminLugar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lugar eliminado */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["NoAutorizado"];
+            404: components["responses"]["NoEncontrado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    listAdminCategorias: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Categorías, incluidas las inactivas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Categoria"][];
+                };
+            };
+            401: components["responses"]["NoAutorizado"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    createAdminCategoria: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoriaInput"];
+            };
+        };
+        responses: {
+            /** @description Categoría creada */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Categoria"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            409: components["responses"]["Conflicto"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    updateAdminCategoria: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoriaInput"];
+            };
+        };
+        responses: {
+            /** @description Categoría actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Categoria"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            404: components["responses"]["NoEncontrado"];
+            409: components["responses"]["Conflicto"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    deleteAdminCategoria: {
+        parameters: {
+            query?: {
+                /** @description Categoría destino para reasignar los lugares antes de eliminar */
+                reasignarA?: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Categoría eliminada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutorizado"];
+            404: components["responses"]["NoEncontrado"];
+            409: components["responses"]["Conflicto"];
+            500: components["responses"]["ErrorInterno"];
+        };
+    };
+    listAuditoria: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Últimos eventos administrativos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Auditoria"][];
+                };
+            };
             401: components["responses"]["NoAutorizado"];
             500: components["responses"]["ErrorInterno"];
         };

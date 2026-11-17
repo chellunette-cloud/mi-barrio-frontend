@@ -265,7 +265,179 @@ paths:
           $ref: '#/components/responses/NoAutorizado'
         '500':
           $ref: '#/components/responses/ErrorInterno'
+  /api/v1/admin/lugares:
+    get:
+      operationId: listAdminLugares
+      summary: Lugares administrables (HU-13)
+      security: [{ AdminToken: [] }]
+      responses:
+        '200':
+          description: Lugares, incluidos los no publicados
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Lugar' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+    post:
+      operationId: createAdminLugar
+      summary: Crear lugar (HU-13)
+      security: [{ AdminToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LugarInput' }
+      responses:
+        '201':
+          description: Lugar creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Lugar' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+  /api/v1/admin/lugares/{id}:
+    put:
+      operationId: updateAdminLugar
+      summary: Editar o despublicar un lugar (HU-13)
+      security: [{ AdminToken: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LugarInput' }
+      responses:
+        '200':
+          description: Lugar actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Lugar' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+    delete:
+      operationId: deleteAdminLugar
+      summary: Eliminar lugar (HU-13)
+      security: [{ AdminToken: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '204': { description: Lugar eliminado }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+  /api/v1/admin/categorias:
+    get:
+      operationId: listAdminCategorias
+      summary: Categorías administrables (HU-13)
+      security: [{ AdminToken: [] }]
+      responses:
+        '200':
+          description: Categorías, incluidas las inactivas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Categoria' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+    post:
+      operationId: createAdminCategoria
+      summary: Crear categoría (HU-13)
+      security: [{ AdminToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoriaInput' }
+      responses:
+        '201':
+          description: Categoría creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Categoria' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+  /api/v1/admin/categorias/{id}:
+    put:
+      operationId: updateAdminCategoria
+      summary: Editar categoría (HU-13)
+      security: [{ AdminToken: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoriaInput' }
+      responses:
+        '200':
+          description: Categoría actualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Categoria' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+    delete:
+      operationId: deleteAdminCategoria
+      summary: Eliminar categoría con reasignación protegida (HU-13, RN-08)
+      security: [{ AdminToken: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+        - name: reasignarA
+          in: query
+          description: Categoría destino para reasignar los lugares antes de eliminar
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '204': { description: Categoría eliminada }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
+  /api/v1/admin/auditoria:
+    get:
+      operationId: listAuditoria
+      summary: Auditoría administrativa (HU-13)
+      security: [{ AdminToken: [] }]
+      responses:
+        '200':
+          description: Últimos eventos administrativos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Auditoria' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '500': { $ref: '#/components/responses/ErrorInterno' }
 components:
+  securitySchemes:
+    AdminToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     NoEncontrado:
       description: Dato no disponible
@@ -294,6 +466,11 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
     SolicitudInvalida:
       description: Parámetros inválidos
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflicto:
+      description: La operación entra en conflicto con datos existentes
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -445,7 +622,7 @@ components:
         activa: { type: boolean, example: true }
     Lugar:
       type: object
-      required: [id, categoriaId, categoriaCodigo, nombre, lat, lon, dentroBarrio, publicado, fuentePrincipal, fuentes]
+      required: [id, categoriaId, categoriaCodigo, nombre, codigo, lat, lon, dentroBarrio, publicado, fuentePrincipal, fuentes]
       properties:
         id: { type: integer, example: 1 }
         categoriaId: { type: integer, example: 1 }
@@ -455,6 +632,7 @@ components:
         direccion: { type: string, nullable: true }
         sector: { type: string, nullable: true }
         tipo: { type: string, nullable: true, example: colegio }
+        codigo: { type: string, nullable: true, example: '029A08', description: Código externo verificable; en paraderos corresponde al código SITP }
         lat: { type: number, example: 4.6408567 }
         lon: { type: number, example: -74.1702362 }
         dentroBarrio: { type: boolean, example: true }
@@ -502,7 +680,7 @@ components:
             fuente: { type: string, example: F-01 }
         upz:
           type: object
-          required: [nivel, codigo, nombre, poblacion, fuente]
+          required: [nivel, codigo, nombre, poblacion, quinquenios, fuente]
           properties:
             nivel: { type: string, enum: [upz] }
             codigo: { type: string, example: '82' }
@@ -515,6 +693,18 @@ components:
                 anio: { type: integer, example: 2025 }
                 hombres: { type: integer, example: 66175 }
                 mujeres: { type: integer, example: 66955 }
+            quinquenios:
+              type: array
+              minItems: 18
+              maxItems: 18
+              items:
+                type: object
+                required: [edad, hombres, mujeres, total]
+                properties:
+                  edad: { type: string, example: '0-4' }
+                  hombres: { type: integer, example: 5006 }
+                  mujeres: { type: integer, example: 4900 }
+                  total: { type: integer, example: 9906 }
             fuente: { type: string, example: F-03 }
     Seguridad:
       type: object
@@ -572,6 +762,43 @@ components:
       properties:
         accessToken: { type: string }
         expiresIn: { type: integer, example: 900 }
+    CategoriaInput:
+      type: object
+      required: [codigo, nombre, descripcion]
+      properties:
+        codigo:
+          type: string
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          minLength: 2
+          maxLength: 40
+        nombre: { type: string, minLength: 1, maxLength: 120 }
+        descripcion: { type: string, minLength: 1, maxLength: 300 }
+        activa: { type: boolean, default: true }
+    LugarInput:
+      type: object
+      required: [categoriaId, nombre, lat, lon]
+      properties:
+        categoriaId: { type: integer, minimum: 1 }
+        nombre: { type: string, minLength: 1, maxLength: 160 }
+        descripcion: { type: string, nullable: true, maxLength: 500 }
+        direccion: { type: string, nullable: true, maxLength: 200 }
+        sector: { type: string, nullable: true, maxLength: 40 }
+        tipo: { type: string, nullable: true, maxLength: 60 }
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lon: { type: number, minimum: -180, maximum: 180 }
+        publicado: { type: boolean }
+    Auditoria:
+      type: object
+      required: [id, usuario, accion, entidad, entidadId, fecha]
+      properties:
+        id: { type: integer }
+        usuario: { type: string }
+        accion: { type: string }
+        entidad: { type: string }
+        entidadId: { type: integer, nullable: true }
+        antes: { type: object, nullable: true }
+        despues: { type: object, nullable: true }
+        fecha: { type: string, format: date-time }
     Error:
       type: object
       required: [error]
